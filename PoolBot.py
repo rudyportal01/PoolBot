@@ -1,5 +1,3 @@
-#Or	iginally Written December 2017
-
 #Setting API Keys
 from binance.client import Client
 client = Client("Public Key to be inserted here", "Secret Key to be inserted here")
