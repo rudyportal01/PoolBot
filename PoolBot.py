@@ -9,7 +9,7 @@ import math
 from pymarketcap import Pymarketcap
 cmc = Pymarketcap()
 
-#Import of pymarketcap has issues upon startup at times, thus the repeated loop of trying to innitiate it is required until it succesfuly initiates
+#Import of pymarketcap has issues upon startup at times, thus the repeated loop of trying to initiate it is required until it succesfuly initiates
 
 while True:
     try:
