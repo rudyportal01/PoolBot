@@ -1,5 +1,8 @@
+#Or	iginally Written December 2017
+
+#Setting API Keys
 from binance.client import Client
-client = Client("XMAH1MBK4338Hz1LWCFdXMVU5G1GpxHLRNTMazXz0h0PyyHDvvKbUvGeoLTjlaKF", "fL9IjWnc8QslviKkInjkexaKP1XXOoOBGIItaq9M8aTLov5tIGHkwP6EPyU7DjEz")
+client = Client("Public Key to be inserted here", "Secret Key to be inserted here")
 
 import time
 
@@ -7,15 +10,17 @@ import math
 
 from pymarketcap import Pymarketcap
 cmc = Pymarketcap()
-_condition_ = True
-while _condition_:
+
+#Import of pymarketcap has issues upon startup at times, thus the repeated loop of trying to innitiate it is required until it succesfuly initiates
+
+while True:
     try:
         binance = cmc.exchange('binance')
-        _condition_ = False
     except:
         pass
     else:
         break
+
 #--------------------------------------
 from binance.enums import *
 
@@ -41,7 +46,9 @@ SALT_lowtrgtfitprct = 3.25
 SUB_uptrgtfitprct = 4.0
 SUB_lowtrgtfitprct = 3.25
 
+#The above variables are the range within which we wish to trade each coin expressed as a percentage of our total assets
 #======================================================
+
 #Investment model
 #if perctrx > uptargetperctrx
 #		if candlestick condition to sell or hold
@@ -66,7 +73,7 @@ SUB_lowtrgtfitprct = 3.25
 #========================================
 #Functions
 #----------------------------------------
-#-----------------
+#Returns candlestick data from the web - this is used later to make buy/sell decisions
 def colour(oursymbol):
     candles = client.get_klines(symbol = oursymbol, interval=KLINE_INTERVAL_30MINUTE)
 
@@ -77,6 +84,9 @@ def colour(oursymbol):
 
 #===================================================
 #Redistribute Function
+
+#This function redistributes our assets amongst each coin such that we can stay within the inteded percentage range for each coin
+
 def redistributeFunc(ourCoin):
     if ourCoin == 'TRX':
         trgtfitprct = TRX_uptrgtfitprct
@@ -127,6 +137,10 @@ def redistributeFunc(ourCoin):
     if minQuant < redist < maxQuant:
         client.order_market_buy(symbol = coinSymbol, quantity = round(redist, lotSizefctr))
         print('Redistributed BTC to ' + coinSymbol + ', bought ' + str(redist))
+    else:
+        print('Redistribution to ' + coinSymbol + 'did not meet conditions; tried to buy' + str(redist))
+
+
 #=======================================================
 #qrestoredown is quantity needed to rest to lowtrgtfitprct
 #(lowtrgtfitprct/100)vAssets = newvalue_ticker
@@ -142,6 +156,9 @@ def oursymbolDIR(our_symbol):
 #Finds the dictionary within which the BNBBTC price is stored
 #=======================================================
 #Tether Function Code
+
+#This is a failsafe function which converts the majority of our assets into USD_Teather when the entire market takes a downturn. It also buys back our traded coins when the market stabilizes again
+
 def colourFunc(our_symbol):
     candles_coin = client.get_klines(symbol = our_symbol, interval=KLINE_INTERVAL_4HOUR)
     coin_close = float(candles_coin[-1][4])
@@ -191,6 +208,9 @@ def tetherFunc():
             print('Bought BTCUSDT')
 #=======================================================
 def execution(coin):
+
+#This function actually does the buying and selling of coins and adjusts how much to buy or sell depending on the worth of our total assets
+
     if coin == 'TRX':
         lowtrgtfitprct = TRX_lowtrgtfitprct
         uptrgtfitprct = TRX_uptrgtfitprct
@@ -304,6 +324,9 @@ def execution(coin):
         else:
             return 'restoreup is ' + str(qrestoreup)
 #----------------------------------------------
+#MAIN FUNCTION
+
+#This is the main function and is actually what is running our bot 
 
 while True:
     trxDIR = oursymbolDIR('TRXBTC')
@@ -470,27 +493,15 @@ while True:
             #Bot Code
             tetherFunc()
 
-            con_exec = 0
-            while con_exec < 9:
-                if con_exec == 0:
-                    print(execution('TRX'))
-                elif con_exec == 1:
-                    print(execution('IOTA'))
-                elif con_exec == 2:
-                    print(execution('XRP'))
-                elif con_exec == 3:
-                    print(execution('BNB'))
-                elif con_exec == 4:
-                    print(execution('ADA'))
-                elif con_exec == 5:
-                    print(execution('LTC'))
-                elif con_exec == 6:
-                    print(execution('XLM'))
-                elif con_exec == 7:
-                    print(execution('SALT'))
-                elif con_exec == 8:
-                    print(execution('SUB'))
-                con_exec += 1
+            print(execution('TRX'))
+            print(execution('IOTA'))
+            print(execution('XRP'))
+            print(execution('BNB'))
+            print(execution('ADA'))
+            print(execution('LTC'))
+            print(execution('XLM'))
+            print(execution('SALT'))
+            print(execution('SUB'))
         except:
             pass
         else:
